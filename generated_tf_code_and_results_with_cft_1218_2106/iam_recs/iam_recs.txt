@@ -1,0 +1,39 @@
+Invoking GenerateIacRoleRecommendation with plan /tmp/tf-iam-rec-862560908/tfplan.json...
+Response:
+{
+  "resourceRoles": [
+    {
+      "resourceName": "projects/gcp-project",
+      "roles": [
+        {
+          "name": "roles/discoveryengine.admin",
+          "permissions": [
+            "discoveryengine.engines.create",
+            "discoveryengine.dataStores.delete",
+            "discoveryengine.engines.delete",
+            "discoveryengine.operations.get",
+            "discoveryengine.dataStores.get",
+            "discoveryengine.engines.get",
+            "discoveryengine.dataStores.create"
+          ]
+        },
+        {
+          "name": "roles/iam.serviceAccountUser"
+        }
+      ]
+    }
+  ],
+  "[cloud_iam.policy_ai.iampolicyai.IacRolesAdditionalInfo.additional_info]": {
+    "resourceInfos": [
+      {
+        "resourceName": "projects/gcp-project",
+        "createResourceTypes": [
+          "google_discovery_engine_chat_engine",
+          "google_discovery_engine_data_store"
+        ]
+      }
+    ]
+  }
+}
+Duration: 24 sec.
+
