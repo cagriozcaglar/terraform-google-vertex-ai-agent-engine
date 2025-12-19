@@ -1,0 +1,43 @@
+Invoking GenerateIacRoleRecommendation with plan /tmp/tf-iam-rec-3422343844/tfplan.json...
+Response:
+{
+  "resourceRoles": [
+    {
+      "resourceName": "projects/gcp-project",
+      "roles": [
+        {
+          "name": "roles/dialogflow.consoleAgentEditor",
+          "permissions": [
+            "dialogflow.agents.create",
+            "dialogflow.agents.delete",
+            "dialogflow.agents.get"
+          ]
+        },
+        {
+          "name": "roles/iam.operationViewer",
+          "permissions": [
+            "iam.operations.get"
+          ]
+        },
+        {
+          "name": "roles/iam.serviceAccountUser",
+          "permissions": [
+            "iam.serviceAccounts.actAs"
+          ]
+        }
+      ]
+    }
+  ],
+  "[cloud_iam.policy_ai.iampolicyai.IacRolesAdditionalInfo.additional_info]": {
+    "resourceInfos": [
+      {
+        "resourceName": "projects/gcp-project",
+        "createResourceTypes": [
+          "google_dialogflow_cx_agent"
+        ]
+      }
+    ]
+  }
+}
+Duration: 23 sec.
+
