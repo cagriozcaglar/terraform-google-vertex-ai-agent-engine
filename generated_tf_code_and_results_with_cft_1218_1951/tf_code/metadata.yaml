@@ -1,0 +1,122 @@
+# Copyright 2024 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+apiVersion: blueprints.cloud.google.com/v1alpha1
+kind: BlueprintMetadata
+metadata:
+  name: terraform-google-dialogflow-cx-agent
+  annotations:
+    config.kubernetes.io/local-config: "true"
+spec:
+  info:
+    title: Dialogflow CX Agent
+    source:
+      type: git
+      location: https://github.com/GoogleCloudPlatform/terraform-google-dialogflow-cx-agent.git
+    version: 1.0.0
+    actuationTool:
+      type: terraform
+      version: '>= 1.3'
+    description:
+      tagline: Creates a Google Cloud Dialogflow CX Agent for building advanced conversational AI.
+      detailed: This module provisions a Dialogflow CX Agent, which is the top-level container for all conversational flows, intents, and entities. It supports advanced features like generative AI integration, speech-to-text, and configurable logging.
+    icon: https://cloud.google.com/static/images/cloud/products/logos/svg/dialogflow.svg
+    documentations:
+    - title: Dialogflow CX Agent Resource
+      url: https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/dialogflow_cx_agent
+    examples:
+    - name: simple_agent
+      title: Basic Agent Example
+      description: Deploys a simple Dialogflow CX Agent with default settings.
+      location: examples/simple_agent
+  content:
+    deployment:
+      variables:
+      - name: project_id
+        description: The Google Cloud project ID where the agent will be created. If not provided, the provider's project is used.
+        type: string
+        default: null
+        required: false
+      - name: location
+        description: The Google Cloud location for the agent. This can be a region, e.g., `us-central1`.
+        type: string
+        default: "global"
+        required: false
+      - name: display_name
+        description: The human-readable name of the agent, unique within its location.
+        type: string
+        default: "tf-generated-dialogflow-cx-agent"
+        required: false
+      - name: default_language_code
+        description: The default language of the agent as a BCP-47 language tag. Example 'en'.
+        type: string
+        default: "en"
+        required: false
+      - name: time_zone
+        description: The time zone of the agent from the IANA time zone database. Example 'America/New_York'.
+        type: string
+        default: "America/New_York"
+        required: false
+      - name: description
+        description: A description for the agent.
+        type: string
+        default: null
+        required: false
+      - name: avatar_uri
+        description: The URI of the agent's avatar.
+        type: string
+        default: null
+        required: false
+      - name: supported_language_codes
+        description: A list of BCP-47 language tags for languages supported by the agent, in addition to the default language.
+        type: list(string)
+        default: null
+        required: false
+      - name: gen_app_builder_engine
+        description: The full resource name of the Vertex AI Search data store to connect to for generative AI capabilities. Format `projects/{project}/locations/{location}/collections/{collection}/dataStores/{data_store}`.
+        type: string
+        default: null
+        required: false
+      - name: speech_to_text_settings
+        description: An object with settings for speech-to-text. Set to enable speech adaptation, which is useful for voice bots.
+        type: object
+        default: null
+        required: false
+      - name: advanced_logging_settings
+        description: An object with advanced logging settings for the agent. If not provided, default logging settings are used.
+        type: object
+        default: null
+        required: false
+      - name: security_settings
+        description: The full resource name of the Security Settings to apply to the agent. Format `projects/{project}/locations/{location}/securitySettings/{security_setting}`.
+        type: string
+        default: null
+        required: false
+      - name: enable_spell_correction
+        description: If true, automatic spell correction is enabled for user inputs.
+        type: boolean
+        default: false
+        required: false
+      outputs:
+      - name: name
+        description: The unique resource name of the agent. Format projects/<Project ID>/locations/<Location ID>/agents/<Agent ID>.
+      - name: display_name
+        description: The display name of the created agent.
+      - name: start_flow
+        description: The name of the start flow. This is the flow that is used when the session is created. Format projects/<Project ID>/locations/<Location ID>/agents/<Agent ID>/flows/<Flow ID>.
+  requirements:
+    services:
+    - dialogflow.googleapis.com
+    roles:
+    - level: project
+      role: roles/dialogflow.admin
