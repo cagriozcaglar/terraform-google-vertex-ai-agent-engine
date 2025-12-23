@@ -1,0 +1,119 @@
+apiVersion: blueprints.cloud.google.com/v1alpha1
+kind: TerraformBlueprint
+metadata:
+  name: terraform-google-vertex-ai-search-app
+  source:
+    type: git
+    git:
+      repo: https://github.com/GoogleCloudPlatform/terraform-google-vertex-ai-search-app.git
+      dir: /
+  version: 1.0.0
+spec:
+  info:
+    title: Vertex AI Search and Conversation App
+    actuationTool:
+      type: Terraform
+      version: '>= 1.3.0'
+    description:
+      tagline: Deploys a Vertex AI Search or Conversation application, including engines and data stores.
+      detailed: |
+        This blueprint provisions a comprehensive Vertex AI Search and Conversation solution on Google Cloud.
+        It creates a top-level Search App, which serves as the container for engines and data stores.
+        You can configure it for either a search solution (with configurable tiers and add-ons like LLM-based summaries) or a conversational solution (with a configurable chat agent persona).
+        The blueprint also handles the creation of new data stores and/or the attachment of existing ones.
+    examples:
+      - name: simple_example
+        location: examples/simple_example
+        title: Simple Search App
+    labels:
+      gcp: ""
+      vertex-ai: ""
+      search: ""
+      conversation: ""
+  deployment:
+    variables:
+      - name: project_id
+        description: The Google Cloud project ID where the resources will be created.
+        type: string
+        required: true
+      - name: app_display_name
+        description: The display name of the Vertex AI Search App, which is the top-level container for engines and data stores.
+        type: string
+        default: "my-vertex-ai-search-app"
+        required: false
+      - name: chat_engine_config
+        description: Configuration for a chat engine. This is required and only used when `solution_type` is `SOLUTION_TYPE_CONVERSATION`. `business` is the name of the company to use in the agent's responses.
+        type: object
+        default: null
+        required: false
+      - name: data_stores
+        description: A map of Data Store configurations to create and attach to the engine. The keys of the map are logical names, and the values are the configuration objects. If empty, no new data stores will be created.
+        type: map(object)
+        default: {}
+        required: false
+      - name: engine_id
+        description: The unique ID for the Engine. Must be a-z, 0-9, or hyphens, with a length of 1-40.
+        type: string
+        default: "my-vertex-ai-search-engine"
+        required: false
+      - name: existing_data_store_ids
+        description: A list of pre-existing Data Store IDs to attach to the app.
+        type: list(string)
+        default: []
+        required: false
+      - name: location
+        description: The GCP location for the Vertex AI Search and Conversation resources.
+        type: string
+        default: "global"
+        required: false
+      - name: search_engine_config
+        description: Configuration for a search engine. Only used when `solution_type` is `SOLUTION_TYPE_SEARCH`. `search_tier` can be `SEARCH_TIER_STANDARD` or `SEARCH_TIER_ENTERPRISE`. `search_add_ons` can include `SEARCH_ADD_ON_LLM`.
+        type: object
+        default:
+          search_add_ons: []
+          search_tier: "SEARCH_TIER_STANDARD"
+        required: false
+      - name: solution_type
+        description: The solution type for the app and engine. Can be `SOLUTION_TYPE_SEARCH` for search applications or `SOLUTION_TYPE_CONVERSATION` for conversational AI applications.
+        type: string
+        default: "SOLUTION_TYPE_SEARCH"
+        required: false
+    variableGroups:
+      - name: Required Settings
+        description: Basic required information for the blueprint.
+        variables:
+          - project_id
+      - name: General App Configuration
+        description: High-level configuration for the Vertex AI Search App.
+        variables:
+          - app_display_name
+          - location
+          - engine_id
+          - solution_type
+      - name: Engine Configuration
+        description: Configuration specific to the chosen solution type (Search or Conversation).
+        variables:
+          - search_engine_config
+          - chat_engine_config
+      - name: Data Store Configuration
+        description: Define the data sources for the application.
+        variables:
+          - data_stores
+          - existing_data_store_ids
+    outputs:
+      - name: app_name
+        description: The full resource name of the created Vertex AI Search App.
+      - name: created_data_stores
+        description: A map of the data stores created by this module, with their full resource names and IDs.
+      - name: engine_id
+        description: The unique ID of the Engine.
+      - name: service_agent
+        description: The service account email for the Vertex AI Search service agent.
+  requirements:
+    roles:
+      - level: project
+        roles:
+          - roles/discoveryengine.admin
+          - roles/serviceusage.serviceUsageAdmin
+    services:
+      - discoveryengine.googleapis.com
