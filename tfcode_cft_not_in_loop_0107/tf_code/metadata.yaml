@@ -1,0 +1,145 @@
+apiVersion: blueprints.cloud.google.com/v1alpha1
+kind: BlueprintMetadata
+metadata:
+  name: terraform-google-dialogflow-cx-agent
+  annotations:
+    config.kubernetes.io/local-config: "true"
+spec:
+  info:
+    title: Dialogflow CX Agent Module
+    source:
+      sourceType: git
+      git:
+        repoLink: https://github.com/GoogleCloudPlatform/terraform-google-dialogflow-cx-agent # Placeholder URL
+    version: 1.0.0
+    actuationTool:
+      flavor: terraform
+      version: ">= 1.3.0"
+    description:
+      tagline: A Terraform module for creating a Google Cloud Dialogflow CX Agent.
+      detailed: This module provisions a core Dialogflow CX Agent, with optional configurations for tools (via OpenAPI specs) and a knowledge base data store using Vertex AI Search for Retrieval-Augmented Generation (RAG).
+  content:
+    variables:
+      - name: project_id
+        description: The ID of the Google Cloud project in which to provision the resources.
+        type: string
+        required: true
+      - name: location
+        description: The location for the Dialogflow CX Agent. This is the primary region for the agent and its associated tools.
+        type: string
+        required: true
+      - name: display_name
+        description: The human-readable display name for the Dialogflow CX Agent.
+        type: string
+        required: true
+      - name: time_zone
+        description: The time zone of the agent from the IANA Time Zone Database. For example, America/New_York, Europe/Paris.
+        type: string
+        required: true
+      - name: default_language_code
+        description: "The default language of the agent as a language tag (e.g., 'en', 'en-US')."
+        type: string
+        required: false
+        defaultValue: "en"
+      - name: description
+        description: The description of the agent. The maximum length is 500 characters.
+        type: string
+        required: false
+      - name: avatar_uri
+        description: The URI of the agent's avatar. Avatars are used throughout the Dialogflow console and in the self-hosted Web Demo integration.
+        type: string
+        required: false
+      - name: enable_stackdriver_logging
+        description: Determines whether Stackdriver logging is enabled for the agent.
+        type: bool
+        required: false
+        defaultValue: true
+      - name: enable_spell_correction
+        description: Indicates if automatic spell correction is enabled for this agent.
+        type: bool
+        required: false
+        defaultValue: false
+      - name: advanced_settings
+        description: "Hierarchical advanced settings for this agent. The structure of this object must follow the schema for the 'advancedSettings' argument in the google_dialogflow_cx_agent resource. For example, to configure audio export: `{ audio_export_gcs_destination = { uri = 'gs://your-bucket/audio/' } }`"
+        type: object
+        required: false
+      - name: gen_app_builder_settings
+        description: "Settings for Generative App Builder. If this is not set, generative features will be disabled. To enable, set to an object like `{ engine = 'projects/your-project-id/locations/global/collections/default_collection/dataStores/your-datastore-id' }`."
+        type: object
+        required: false
+      - name: text_to_speech_settings
+        description: "Settings for text-to-speech. This object must conform to the 'textToSpeechSettings' argument schema in the google_dialogflow_cx_agent resource. For example: `{ synthesize_speech_configs = jsonencode({'en-US': {'voice': {'name': 'en-US-Wavenet-D'}}}) }`."
+        type: object
+        required: false
+      - name: speech_to_text_settings
+        description: "Settings for speech-to-text. This object must conform to the 'speechToTextSettings' argument schema in the google_dialogflow_cx_agent resource. For example: `{ enable_speech_adaptation = true }`."
+        type: object
+        required: false
+      - name: tools
+        description: A map of tool configurations to create for the agent. The key of the map is a logical name used for referencing the tool.
+        type: map(object)
+        required: false
+        defaultValue: {}
+      - name: datastore_config
+        description: Configuration for a Discovery Engine Datastore to be created as a knowledge base for the agent. If null, no datastore is created.
+        type: object
+        required: false
+      - name: datastore_location
+        description: "The location for the Discovery Engine Datastore. Can be 'global' or a multi-regional location like 'us' or 'eu'."
+        type: string
+        required: false
+        defaultValue: "global"
+    variableGroups:
+      - name: Core Agent Configuration
+        description: Basic settings required to create the Dialogflow CX Agent.
+        variables:
+          - project_id
+          - location
+          - display_name
+          - time_zone
+          - default_language_code
+      - name: Advanced Agent Settings
+        description: Optional settings to customize agent behavior.
+        variables:
+          - description
+          - avatar_uri
+          - enable_stackdriver_logging
+          - enable_spell_correction
+          - advanced_settings
+          - text_to_speech_settings
+          - speech_to_text_settings
+      - name: Agent Integrations (Generative AI)
+        description: Configure integrations with external tools and knowledge bases.
+        variables:
+          - tools
+          - gen_app_builder_settings
+          - datastore_config
+          - datastore_location
+    outputs:
+      - name: agent_id
+        description: The unique identifier of the created Dialogflow CX Agent.
+      - name: agent_name
+        description: The full resource name of the created Dialogflow CX Agent.
+      - name: agent_start_flow
+        description: The name of the start flow of the created agent.
+      - name: tools
+        description: A map of the created tools, where the key is the logical name and the value is the tool's full resource name.
+      - name: datastore_id
+        description: The unique identifier of the created Discovery Engine Datastore. This will be null if no datastore was created.
+      - name: datastore_name
+        description: The full resource name of the created Discovery Engine Datastore. This will be null if no datastore was created.
+      - name: datastore_service_identity
+        description: The email of the service account created for the Discovery Engine Datastore. This will be null if no datastore was created.
+  requirements:
+    roles:
+      - level: project
+        role: roles/dialogflow.admin
+      - level: project
+        role: roles/discoveryengine.admin
+      - level: project
+        role: roles/serviceusage.serviceUsageAdmin
+    services:
+      - dialogflow.googleapis.com
+      - discoveryengine.googleapis.com
+      - serviceusage.googleapis.com
+      - cloudresourcemanager.googleapis.com
